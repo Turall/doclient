@@ -1,6 +1,7 @@
-from dataclasses import dataclass
 from enum import Enum, auto
 from typing import Optional
+
+from pydantic import BaseModel
 
 
 class TaintEffect(str, Enum):
@@ -16,34 +17,42 @@ class TaintEffect(str, Enum):
         return TaintEffect(taint).value
 
 
-@dataclass
-class Taints:
+class Taints(BaseModel):
     key: str
     value: str
     effect: TaintEffect
 
+    class Config:
+        use_enum_values = True
 
-@dataclass
-class MaintenancePolicy:
+
+class MaintenancePolicy(BaseModel):
     start_time: str
     day: str
 
 
-@dataclass
-class NodePool:
+class ClusterStatus(BaseModel):
+    state: str
+    message: str
+
+
+class NodePool(BaseModel):
     size: str
     name: str
     count: int
-    tags: Optional[list[str]] = None
-    labels: Optional[dict] = None
-    taints: Optional[list[Taints]] = None
+    tags: Optional[list[str]]
+    labels: Optional[dict]
+    taints: Optional[list[Taints]]
     auto_scale: bool = False
     min_nodes: int = 0
     max_nodes: int = 0
 
 
-@dataclass
-class KubernetesPayload:
+class NodePoolResponse(NodePool):
+    droplet_id: Optional[str]
+
+
+class KubernetesPayload(BaseModel):
     name: str
     region: str
     vpc_uuid: str
@@ -54,3 +63,25 @@ class KubernetesPayload:
     auto_upgrade: bool = False
     surge_upgrade: bool = False
     ha: bool = False
+
+
+class KubernetesUpdatePayload(BaseModel):
+    name: str
+    tags: Optional[list[str]]
+    maintenance_policy: Optional[MaintenancePolicy]
+    auto_upgrade: Optional[bool]
+    surge_upgrade: Optional[bool]
+    ha: Optional[bool]
+
+
+class KubernetesResponse(KubernetesPayload):
+    id: str
+    cluster_subnet: str
+    service_subnet: str
+    registry_enabled: bool
+    status: ClusterStatus
+    created_at: str
+    updated_at: str
+    supported_features: list[str]
+    endpoint: Optional[str]
+    ipv4: Optional[str]
