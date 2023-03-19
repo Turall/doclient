@@ -17,6 +17,27 @@ class TaintEffect(str, Enum):
         return TaintEffect(taint).value
 
 
+class Options(BaseModel):
+    name: str
+    slug: str
+
+
+class K8SVersionsOptions(BaseModel):
+    slug: str
+    kubernetes_version: str
+    supported_features: list[str]
+
+
+class _K8SClusterOptions(BaseModel):
+    regions: list[Options]
+    versions: list[K8SVersionsOptions]
+    sizes: list[Options]
+
+
+class K8SClusterOptions(BaseModel):
+    options: _K8SClusterOptions
+
+
 class Taints(BaseModel):
     key: str
     value: str

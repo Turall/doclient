@@ -1,0 +1,5 @@
+[flake8]
+max-line-length = 88
+ignore = E203,E501,E231,W503,F811,E722,E741
+exclude = .venv,.mypy_cache,.pytest_cache
+profile = black
