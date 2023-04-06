@@ -106,3 +106,8 @@ class KubernetesResponse(KubernetesPayload):
     supported_features: list[str]
     endpoint: Optional[str]
     ipv4: Optional[str]
+
+
+class Kubernetes1clickApps(BaseModel):
+    addon_slugs: list[str]
+    cluster_uuid: str

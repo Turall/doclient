@@ -9,19 +9,23 @@ from doclient.resources.k8s.schemas import (
     KubernetesResponse,
     KubernetesUpdatePayload,
     NodePool,
+    Kubernetes1clickApps,
 )
 
 
 class DoK8Sclient:
     def __init__(self, api_key: str = None) -> None:
         self.api_key = api_key or os.getenv("DO_TOKEN")
-        self.base_url = "https://api.digitalocean.com/v2/kubernetes"
+        
+        self.api_url = "https://api.digitalocean.com"
+        self.base_url = f"{self.api_url}/v2/kubernetes"
+        self.addon_apps_url = f"{self.api_url}/v2/1-clicks/kubernetes"
         self.headers = {"Authorization": f"Bearer {self.api_key}"}
 
     async def create_k8s_cluster(self, payload: KubernetesPayload) -> dict:
         async with aiohttp.ClientSession() as session:
             async with session.post(
-                self.base_url, json=payload.dict(), headers=self.headers
+                f"{self.base_url}/clusters", json=payload.dict(), headers=self.headers
             ) as response:
                 if response.ok:
                     data = await response.json()
@@ -81,11 +85,9 @@ class DoK8Sclient:
         return []
 
     async def get_k8s_cluster(self, cluster_id: str) -> dict:
-        url = f"{self.base_url}/{cluster_id}"
+        url = f"{self.base_url}/clusters/{cluster_id}"
         async with aiohttp.ClientSession() as session:
-            async with session.get(
-                f"{self.base_url}/clusters", headers=self.headers
-            ) as response:
+            async with session.get(url, headers=self.headers) as response:
                 if response.ok:
                     return await response.json()
 
@@ -212,5 +214,23 @@ class DoK8Sclient:
         url = f"{self.base_url}/clusters/{cluster_id}/user"
         async with aiohttp.ClientSession() as session:
             async with session.get(url, headers=self.headers) as response:
+                if response.ok:
+                    return await response.json()
+
+    # async def run_k8s_clusterlint(self, cluster_id: str, node_info: NodePool):
+    #     url = f"{self.base_url}/clusters/{cluster_id}/node_pools"
+    #     async with aiohttp.ClientSession() as session:
+    #         async with session.post(
+    #             url, json=node_info.dict(exclude_none=True), headers=self.headers
+    #         ) as response:
+    #             if response.ok:
+    #                 return await response.json()
+
+    async def install_1click_to_k8s(self, addon_info: Kubernetes1clickApps):
+        url = f"{self.addon_apps_url}"
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                url, json=addon_info.dict(exclude_none=True), headers=self.headers
+            ) as response:
                 if response.ok:
                     return await response.json()
