@@ -16,7 +16,7 @@ from doclient.resources.k8s.schemas import (
 class DoK8Sclient:
     def __init__(self, api_key: str = None) -> None:
         self.api_key = api_key or os.getenv("DO_TOKEN")
-        
+
         self.api_url = "https://api.digitalocean.com"
         self.base_url = f"{self.api_url}/v2/kubernetes"
         self.addon_apps_url = f"{self.api_url}/v2/1-clicks/kubernetes"

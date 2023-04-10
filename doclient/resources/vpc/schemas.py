@@ -1,10 +1,30 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 from typing import Optional
 
 
-@dataclass
-class Vpc:
+class _VPCSchema(BaseModel):
     name: str
-    description: Optional[str]
+    description: str
     region: str
-    ip_range: Optional[str]
+    ip_range: str
+
+
+class VPCSchema(_VPCSchema):
+    urn: str
+    created_at: str
+    id: str
+    default: bool
+
+
+class VPCResponse(BaseModel):
+    vpc: VPCSchema
+
+
+class VPCsSchema(BaseModel):
+    vpcs: list[VPCSchema]
+    links: dict
+    meta: dict
+
+
+class VPCPayload(_VPCSchema):
+    pass
